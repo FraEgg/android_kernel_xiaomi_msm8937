@@ -79,7 +79,6 @@ struct uid_entry {
 #endif
 };
 
-#if IS_ENABLED(CONFIG_TASK_IO_ACCOUNTING)
 static u64 compute_write_bytes(struct task_struct *task)
 {
 	if (task->ioac.write_bytes <= task->ioac.cancelled_write_bytes)
@@ -87,7 +86,6 @@ static u64 compute_write_bytes(struct task_struct *task)
 
 	return task->ioac.write_bytes - task->ioac.cancelled_write_bytes;
 }
-#endif
 
 static void compute_io_bucket_stats(struct io_stats *io_bucket,
 					struct io_stats *io_curr,
@@ -480,19 +478,13 @@ static const struct file_operations uid_remove_fops = {
 static void add_uid_io_stats(struct uid_entry *uid_entry,
 			struct task_struct *task, int slot)
 {
-#if IS_ENABLED(CONFIG_TASK_IO_ACCOUNTING) || IS_ENABLED(CONFIG_TASK_XACCT)
 	struct io_stats *io_slot = &uid_entry->io[slot];
-#endif
 
-#if IS_ENABLED(CONFIG_TASK_IO_ACCOUNTING)
 	io_slot->read_bytes += task->ioac.read_bytes;
 	io_slot->write_bytes += compute_write_bytes(task);
-#endif
-#if IS_ENABLED(CONFIG_TASK_XACCT)
 	io_slot->rchar += task->ioac.rchar;
 	io_slot->wchar += task->ioac.wchar;
 	io_slot->fsync += task->ioac.syscfs;
-#endif
 
 	add_uid_tasks_io_stats(uid_entry, task, slot);
 }

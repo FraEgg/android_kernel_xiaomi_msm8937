@@ -1751,6 +1751,7 @@ static int ks8851_probe(struct spi_device *spi)
 	return 0;
 
 err_netdev:
+	free_irq(ndev->irq, ks);
 err_id:
 	if (gpio_is_valid(gpio))
 		gpio_set_value(gpio, 0);
